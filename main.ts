@@ -121,6 +121,30 @@ namespace platformerHelpers {
         return right > platform.left + 1 && left < platform.right - 1
     }
 
+    function isStompContact(player: Sprite, enemy: Sprite): boolean {
+        if (isDestroyed(player)
+            || isDestroyed(enemy)
+            || player.vy < 0
+            || !overlapsHorizontally(player.left, player.right, enemy)
+            || player.top >= enemy.bottom) {
+            return false
+        }
+
+        const snapshot = snapshotFor(player)
+        if (snapshot) {
+            return snapshot.bottom <= enemy.top + 1
+                && player.bottom >= enemy.top
+        }
+
+        // A snapshot is not available when this is the first helper block used
+        // in an already-running scene. Keep that first contact useful while
+        // still rejecting obvious side and underside hits.
+        const penetration = player.bottom - enemy.top
+        return player.y < enemy.y
+            && penetration >= -1
+            && penetration <= Math.max(2, Math.min(player.height, enemy.height) / 2)
+    }
+
     function stillInStompContact(contact: StompContact): boolean {
         if (isDestroyed(contact.player) || isDestroyed(contact.enemy)) return false
         return overlapsHorizontally(contact.player.left, contact.player.right, contact.enemy)
@@ -143,13 +167,7 @@ namespace platformerHelpers {
             if (!snapshot) continue
 
             for (const enemy of sprites.allOfKind(SpriteKind.Enemy)) {
-                if (isDestroyed(enemy)
-                    || snapshot.bottom > enemy.top + 1
-                    || player.bottom < enemy.top
-                    || player.top >= enemy.bottom
-                    || !overlapsHorizontally(player.left, player.right, enemy)) {
-                    continue
-                }
+                if (!isStompContact(player, enemy)) continue
 
                 let alreadyActive = false
                 for (const contact of stompContacts) {
@@ -443,6 +461,22 @@ namespace platformerHelpers {
             direction: 1
         })
         return enemy
+    }
+
+    /**
+     * Report whether this Player/Enemy overlap is a stomp from above.
+     * Use it inside Arcade's normal Player overlaps Enemy event. The else
+     * branch then represents contact with the enemy's sides or underside.
+     * @param player the Player from the overlap event
+     * @param enemy the Enemy from the overlap event
+     */
+    //% blockId=platformer_helpers_player_stomps_enemy
+    //% block="Player $player=variables_get(sprite) stomps Enemy $enemy=variables_get(otherSprite)"
+    //% group="Enemies"
+    //% weight=95
+    export function playerStompsEnemy(player: Sprite, enemy: Sprite): boolean {
+        ensureRuntime()
+        return isStompContact(player, enemy)
     }
 
     /**
