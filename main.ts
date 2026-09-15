@@ -484,6 +484,7 @@ namespace platformerHelpers {
      */
     //% blockId=platformer_helpers_on_player_stomps_enemy
     //% block="on $player Player stomps $enemy Enemy"
+    //% blockHidden=true
     //% draggableParameters="reporter"
     //% group="Enemies"
     //% weight=90
