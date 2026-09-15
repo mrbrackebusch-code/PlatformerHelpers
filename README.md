@@ -1,9 +1,10 @@
 # Platformer Helpers
 
-Four focused MakeCode Arcade blocks for student-built platformer games:
+Five focused MakeCode Arcade blocks for student-built platformer games:
 
 - create a moving platform from one tile coordinate to another;
 - create a walking enemy that turns at walls and ledges;
+- tell a stomp from a dangerous side or underside collision;
 - respond when a Player stomps an Enemy;
 - create a moving hazard from one tile coordinate to another.
 
@@ -28,7 +29,21 @@ Creates a platform from student-selected art, places its center at the starting 
 
 Creates a built-in Enemy sprite, applies gravity only to that enemy, and makes it turn around at walls and ledges. The block returns the enemy sprite.
 
-### Player stomps Enemy
+### Player stomps Enemy (logic)
+
+Use the normal **on Player overlaps Enemy** event, then place **Player sprite stomps Enemy otherSprite** in an `if` block. Put the enemy-defeat behavior in `then`; the `else` branch means the player touched the enemy from the side or underside.
+
+```text
+on Player overlaps Enemy
+    if Player sprite stomps Enemy otherSprite
+        destroy otherSprite
+    else
+        game over LOSE
+```
+
+The block contains the direction and motion checks. Students do not need to compare positions, velocities, or sprite edges themselves. This single-overlap pattern also prevents a valid stomp from being treated as an unconditional lethal Player/Enemy overlap.
+
+### On Player stomps Enemy
 
 Runs student code when a downward-moving Player lands on the top of an Enemy. The extension does not automatically destroy the enemy, bounce the player, change score, or play an effect.
 
@@ -45,5 +60,4 @@ This package deliberately does not include keys, doors, switches, checkpoints, p
 MIT. Classroom use, copying, modification, and redistribution are welcome.
 
 for PXT/arcade
-
 
