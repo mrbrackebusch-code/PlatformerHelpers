@@ -14,6 +14,14 @@ let walkingEnemy = platformerHelpers.createWalkingEnemy(
     25
 )
 
+sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
+    if (platformerHelpers.playerStompsEnemy(sprite, otherSprite)) {
+        otherSprite.destroy()
+    } else {
+        game.over(false)
+    }
+})
+
 let movingHazard = platformerHelpers.createMovingHazard(
     image.create(16, 16),
     12,
@@ -27,5 +35,4 @@ platformerHelpers.onPlayerStompsEnemy(function (player, enemy) {
     enemy.destroy()
     player.vy = -100
 })
-
 
