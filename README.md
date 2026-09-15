@@ -1,11 +1,10 @@
 # Platformer Helpers
 
-Five focused MakeCode Arcade blocks for student-built platformer games:
+Four focused MakeCode Arcade blocks for student-built platformer games:
 
 - create a moving platform from one tile coordinate to another;
 - create a walking enemy that turns at walls and ledges;
 - tell a stomp from a dangerous side or underside collision;
-- respond when a Player stomps an Enemy;
 - create a moving hazard from one tile coordinate to another.
 
 The extension handles movement plumbing while leaving game rules with the student. It does not replace Arcade's physics engine, change global gravity, or decide what stomping and touching hazards should do.
@@ -42,10 +41,6 @@ on Player overlaps Enemy
 ```
 
 The block contains the direction and motion checks. Students do not need to compare positions, velocities, or sprite edges themselves. This single-overlap pattern also prevents a valid stomp from being treated as an unconditional lethal Player/Enemy overlap.
-
-### On Player stomps Enemy
-
-Runs student code when a downward-moving Player lands on the top of an Enemy. The extension does not automatically destroy the enemy, bounce the player, change score, or play an effect.
 
 ### Moving hazard
 
