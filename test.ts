@@ -31,8 +31,3 @@ let movingHazard = platformerHelpers.createMovingHazard(
     35
 )
 
-platformerHelpers.onPlayerStompsEnemy(function (player, enemy) {
-    enemy.destroy()
-    player.vy = -100
-})
-
