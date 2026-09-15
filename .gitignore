@@ -1,0 +1,8 @@
+built/
+pxt_modules/
+node_modules/
+*.hex
+*.uf2
+*.log
+
+
