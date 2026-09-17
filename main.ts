@@ -8,6 +8,7 @@ namespace SpriteKind {
     /**
      * The sprite kind used by keys made with create 3 keys.
      */
+    //% isKind
     export const PlatformerKey = SpriteKind.create()
 }
 
@@ -87,6 +88,11 @@ namespace platformerHelpers {
     }
 
     function ensureRuntime(): void {
+        // PXT can invoke an exported helper before the extension's global array
+        // initializers have run in a test/consumer program. Keep every exported
+        // entry point safe in that ordering as well as during normal play.
+        if (!stompHandlers) stompHandlers = []
+
         const current = game.currentScene()
         if (runtimeScene === current) return
 
@@ -213,7 +219,6 @@ namespace platformerHelpers {
         }
         stompContacts = retained
 
-        if (!stompHandlers.length) return
         for (const player of sprites.allOfKind(SpriteKind.Player)) {
             if (isDestroyed(player) || player.vy < 0) continue
             const snapshot = snapshotFor(player)
@@ -232,7 +237,7 @@ namespace platformerHelpers {
                 if (alreadyActive) continue
 
                 stompContacts.push({ player: player, enemy: enemy })
-                const handlers = stompHandlers.slice()
+                const handlers = stompHandlers ? stompHandlers.slice() : []
                 for (const handler of handlers) {
                     handler(player, enemy)
                 }
@@ -541,6 +546,13 @@ namespace platformerHelpers {
     //% weight=95
     export function playerStompsEnemy(player: Sprite, enemy: Sprite): boolean {
         ensureRuntime()
+
+        // Arcade dispatches overlap events in parallel with its physics frame.
+        // Use the contact classified immediately after physics when available;
+        // otherwise classify the live contact from the pre-physics snapshot.
+        for (const contact of stompContacts) {
+            if (contact.player === player && contact.enemy === enemy) return true
+        }
         return isStompContact(player, enemy)
     }
 

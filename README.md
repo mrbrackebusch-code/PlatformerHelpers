@@ -59,6 +59,8 @@ on Player overlaps MovingHazard
 
 **Create 3 keys** uses one student-selected picture for all three keys and places them at three tile coordinates. Touching a key with a Player automatically collects it. Running the setup block again removes the old key set and starts the count over at zero.
 
+**PlatformerKey** appears in Arcade's sprite-kind dropdown, so ordinary overlap blocks can identify the keys created by the helper without inventing a separate kind.
+
 Place **all 3 keys collected** inside an `if` in the normal overlap event for the level's win-area tile. The student still decides what happens when the condition is true.
 
 ```text
@@ -68,6 +70,10 @@ on Player overlaps win-area tile
 ```
 
 The key count is private to this helper and only keys created by **create 3 keys** can satisfy it. Other Food sprites or collectibles do not count.
+
+## Collision regression proof
+
+The package's executable Arcade test uses 24-by-24 Player and Enemy images whose opaque art is surrounded on every side by transparent pixels. It drives three real Player/Enemy overlaps through Arcade's physics and public overlap event: a descending top contact must report a stomp, while side and rising underside contacts must not. The test fails unless all three callbacks occur exactly once with those classifications.
 
 ## Design boundary
 
