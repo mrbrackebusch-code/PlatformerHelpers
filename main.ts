@@ -44,6 +44,13 @@ namespace platformerHelpers {
         bottom: number
     }
 
+    interface CollisionBounds {
+        left: number
+        right: number
+        top: number
+        bottom: number
+    }
+
     interface Rider {
         player: Sprite
         mover: PathMover
@@ -94,11 +101,12 @@ namespace platformerHelpers {
     function capturePlayerPositions(): void {
         playerSnapshots = []
         for (const player of sprites.allOfKind(SpriteKind.Player)) {
+            const bounds = collisionBounds(player)
             playerSnapshots.push({
                 sprite: player,
-                left: player.left,
-                right: player.right,
-                bottom: player.bottom
+                left: bounds.left,
+                right: bounds.right,
+                bottom: bounds.bottom
             })
         }
     }
@@ -121,35 +129,63 @@ namespace platformerHelpers {
         return right > platform.left + 1 && left < platform.right - 1
     }
 
+    function collisionBounds(sprite: Sprite): CollisionBounds {
+        const hitbox = game.calculateHitBox(sprite)
+        return {
+            left: Fx.toFloat(hitbox.left),
+            right: Fx.toFloat(hitbox.right) + 1,
+            top: Fx.toFloat(hitbox.top),
+            bottom: Fx.toFloat(hitbox.bottom) + 1
+        }
+    }
+
+    function boundsOverlapHorizontally(
+        left: number,
+        right: number,
+        other: CollisionBounds
+    ): boolean {
+        return right > other.left + 1 && left < other.right - 1
+    }
+
     function isStompContact(player: Sprite, enemy: Sprite): boolean {
-        if (isDestroyed(player)
-            || isDestroyed(enemy)
-            || player.vy < 0
-            || !overlapsHorizontally(player.left, player.right, enemy)
-            || player.top >= enemy.bottom) {
+        if (isDestroyed(player) || isDestroyed(enemy)) return false
+
+        const playerBounds = collisionBounds(player)
+        const enemyBounds = collisionBounds(enemy)
+        if (player.vy < 0
+            || !boundsOverlapHorizontally(playerBounds.left, playerBounds.right, enemyBounds)
+            || playerBounds.top >= enemyBounds.bottom) {
             return false
         }
 
         const snapshot = snapshotFor(player)
         if (snapshot) {
-            return snapshot.bottom <= enemy.top + 1
-                && player.bottom >= enemy.top
+            return snapshot.bottom <= enemyBounds.top + 1
+                && playerBounds.bottom >= enemyBounds.top
         }
 
         // A snapshot is not available when this is the first helper block used
         // in an already-running scene. Keep that first contact useful while
         // still rejecting obvious side and underside hits.
-        const penetration = player.bottom - enemy.top
+        const penetration = playerBounds.bottom - enemyBounds.top
         return player.y < enemy.y
             && penetration >= -1
-            && penetration <= Math.max(2, Math.min(player.height, enemy.height) / 2)
+            && penetration <= Math.max(
+                2,
+                Math.min(
+                    playerBounds.bottom - playerBounds.top,
+                    enemyBounds.bottom - enemyBounds.top
+                ) / 2
+            )
     }
 
     function stillInStompContact(contact: StompContact): boolean {
         if (isDestroyed(contact.player) || isDestroyed(contact.enemy)) return false
-        return overlapsHorizontally(contact.player.left, contact.player.right, contact.enemy)
-            && contact.player.bottom >= contact.enemy.top - 1
-            && contact.player.top < contact.enemy.bottom
+        const playerBounds = collisionBounds(contact.player)
+        const enemyBounds = collisionBounds(contact.enemy)
+        return boundsOverlapHorizontally(playerBounds.left, playerBounds.right, enemyBounds)
+            && playerBounds.bottom >= enemyBounds.top - 1
+            && playerBounds.top < enemyBounds.bottom
             && contact.player.y < contact.enemy.y
     }
 

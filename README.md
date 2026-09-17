@@ -40,7 +40,7 @@ on Player overlaps Enemy
         game over LOSE
 ```
 
-The block contains the direction and motion checks. Students do not need to compare positions, velocities, or sprite edges themselves. This single-overlap pattern also prevents a valid stomp from being treated as an unconditional lethal Player/Enemy overlap.
+The block contains the direction and motion checks. Students do not need to compare positions, velocities, or sprite edges themselves. It uses Arcade's opaque-pixel collision bounds, so transparent padding around either sprite does not turn a real stomp into a side hit. This single-overlap pattern also prevents a valid stomp from being treated as an unconditional lethal Player/Enemy overlap.
 
 ### Moving hazard
 

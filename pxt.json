@@ -1,6 +1,6 @@
 {
     "name": "Platformer Helpers",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "Beginner-friendly MakeCode Arcade blocks for moving platforms, walking enemies, enemy-contact logic, and moving hazards.",
     "dependencies": {
         "device": "*"
@@ -18,4 +18,3 @@
     ],
     "preferredEditor": "tsprj"
 }
-
