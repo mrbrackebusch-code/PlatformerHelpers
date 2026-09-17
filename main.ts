@@ -78,6 +78,7 @@ namespace platformerHelpers {
     let playerSnapshots: PlayerSnapshot[] = []
     let stompContacts: StompContact[] = []
     let stompHandlers: ((player: Sprite, enemy: Sprite) => void)[] = []
+    let activeKeys: Sprite[] = []
     let keysCollected = 0
     let keysRequired = 0
     let runtimeScene: scene.Scene = null
@@ -92,6 +93,7 @@ namespace platformerHelpers {
         // initializers have run in a test/consumer program. Keep every exported
         // entry point safe in that ordering as well as during normal play.
         if (!stompHandlers) stompHandlers = []
+        if (!activeKeys) activeKeys = []
 
         const current = game.currentScene()
         if (runtimeScene === current) return
@@ -102,12 +104,26 @@ namespace platformerHelpers {
         riders = []
         playerSnapshots = []
         stompContacts = []
+        activeKeys = []
         keysCollected = 0
         keysRequired = 0
         lastUpdateMillis = control.millis()
 
         sprites.onOverlap(SpriteKind.Player, SpriteKind.PlatformerKey, function (player, key) {
             if (isDestroyed(key)) return
+
+            let belongsToActiveSet = false
+            const retainedKeys: Sprite[] = []
+            for (const activeKey of activeKeys) {
+                if (activeKey === key) {
+                    belongsToActiveSet = true
+                } else {
+                    retainedKeys.push(activeKey)
+                }
+            }
+            if (!belongsToActiveSet) return
+
+            activeKeys = retainedKeys
             key.destroy()
             keysCollected += 1
         })
@@ -649,15 +665,16 @@ namespace platformerHelpers {
     ): void {
         ensureRuntime()
 
-        for (const key of sprites.allOfKind(SpriteKind.PlatformerKey)) {
+        for (const key of activeKeys) {
             key.destroy()
         }
 
+        activeKeys = []
         keysCollected = 0
         keysRequired = 3
-        createKey(art, firstColumn, firstRow)
-        createKey(art, secondColumn, secondRow)
-        createKey(art, thirdColumn, thirdRow)
+        activeKeys.push(createKey(art, firstColumn, firstRow))
+        activeKeys.push(createKey(art, secondColumn, secondRow))
+        activeKeys.push(createKey(art, thirdColumn, thirdRow))
     }
 
     /**

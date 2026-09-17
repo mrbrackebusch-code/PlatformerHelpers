@@ -111,3 +111,108 @@ console.log("PLATFORMER_HELPERS_COLLISION result=" + (collisionProofPassed ? "PA
     + " undersideOverlap=" + undersideOverlapCount
     + " undersideClassified=" + undersideClassified)
 
+proofPlayer.destroy()
+proofEnemy.destroy()
+
+function keyArt(): Image {
+    const art = image.create(8, 8)
+    art.fill(5)
+    return art
+}
+
+function kindContains(target: Sprite): boolean {
+    for (const sprite of sprites.allOfKind(SpriteKind.PlatformerKey)) {
+        if (sprite === target) return true
+    }
+    return false
+}
+
+function helperKeyIsAt(column: number, row: number, unrelated: Sprite): boolean {
+    const location = tiles.getTileLocation(column, row)
+    for (const key of sprites.allOfKind(SpriteKind.PlatformerKey)) {
+        if (key !== unrelated && key.x === location.x && key.y === location.y) return true
+    }
+    return false
+}
+
+function collectKeyAt(player: Sprite, column: number, row: number): void {
+    const location = tiles.getTileLocation(column, row)
+    player.setPosition(location.x, location.y)
+    pause(120)
+}
+
+// A public kind must not make arbitrary PlatformerKey sprites part of the
+// helper's private three-key goal. This sprite represents a student's separate
+// key-like object and must survive setup and contact.
+control.runInParallel(function () {
+    pause(50)
+    const unrelatedKey = sprites.create(keyArt(), SpriteKind.PlatformerKey)
+    unrelatedKey.setPosition(112, 112)
+
+    platformerHelpers.createThreeKeys(keyArt(), 1, 1, 3, 1, 5, 1)
+    pause(50)
+
+    const unrelatedSurvivedSetup = kindContains(unrelatedKey)
+    const spawnedExactlyThreeHelpers = sprites.allOfKind(SpriteKind.PlatformerKey).length === 4
+        && helperKeyIsAt(1, 1, unrelatedKey)
+        && helperKeyIsAt(3, 1, unrelatedKey)
+        && helperKeyIsAt(5, 1, unrelatedKey)
+    const falseBeforeCollection = !platformerHelpers.allThreeKeysCollected()
+
+    const keyPlayer = sprites.create(paddedPlayerArt(), SpriteKind.Player)
+    keyPlayer.setPosition(unrelatedKey.x, unrelatedKey.y)
+    pause(120)
+    const unrelatedIgnored = kindContains(unrelatedKey)
+        && !platformerHelpers.allThreeKeysCollected()
+
+    collectKeyAt(keyPlayer, 1, 1)
+    const falseAfterFirst = !platformerHelpers.allThreeKeysCollected()
+        && sprites.allOfKind(SpriteKind.PlatformerKey).length === 3
+
+    collectKeyAt(keyPlayer, 3, 1)
+    const falseAfterSecond = !platformerHelpers.allThreeKeysCollected()
+        && sprites.allOfKind(SpriteKind.PlatformerKey).length === 2
+
+    collectKeyAt(keyPlayer, 5, 1)
+    const trueAfterThird = platformerHelpers.allThreeKeysCollected()
+        && sprites.allOfKind(SpriteKind.PlatformerKey).length === 1
+
+    // Starting a new set must reset progress while preserving unrelated sprites.
+    platformerHelpers.createThreeKeys(keyArt(), 1, 2, 3, 2, 5, 2)
+    pause(50)
+    const completedSetReset = !platformerHelpers.allThreeKeysCollected()
+        && kindContains(unrelatedKey)
+        && sprites.allOfKind(SpriteKind.PlatformerKey).length === 4
+
+    collectKeyAt(keyPlayer, 1, 2)
+    platformerHelpers.createThreeKeys(keyArt(), 1, 3, 3, 3, 5, 3)
+    pause(50)
+    const partialSetReplaced = !platformerHelpers.allThreeKeysCollected()
+        && kindContains(unrelatedKey)
+        && sprites.allOfKind(SpriteKind.PlatformerKey).length === 4
+        && helperKeyIsAt(1, 3, unrelatedKey)
+        && helperKeyIsAt(3, 3, unrelatedKey)
+        && helperKeyIsAt(5, 3, unrelatedKey)
+
+    const keyProofPassed = unrelatedSurvivedSetup
+        && spawnedExactlyThreeHelpers
+        && falseBeforeCollection
+        && unrelatedIgnored
+        && falseAfterFirst
+        && falseAfterSecond
+        && trueAfterThird
+        && completedSetReset
+        && partialSetReplaced
+
+    console.log("PLATFORMER_HELPERS_KEYS result=" + (keyProofPassed ? "PASS" : "FAIL")
+        + " unrelatedSurvivedSetup=" + unrelatedSurvivedSetup
+        + " spawnedExactlyThreeHelpers=" + spawnedExactlyThreeHelpers
+        + " falseBeforeCollection=" + falseBeforeCollection
+        + " unrelatedIgnored=" + unrelatedIgnored
+        + " falseAfterFirst=" + falseAfterFirst
+        + " falseAfterSecond=" + falseAfterSecond
+        + " trueAfterThird=" + trueAfterThird
+        + " completedSetReset=" + completedSetReset
+        + " partialSetReplaced=" + partialSetReplaced)
+})
+

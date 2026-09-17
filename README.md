@@ -69,11 +69,13 @@ on Player overlaps win-area tile
         game over WIN
 ```
 
-The key count is private to this helper and only keys created by **create 3 keys** can satisfy it. Other Food sprites or collectibles do not count.
+The key count is private to this helper and only the three keys created by the latest **create 3 keys** block can satisfy it. Other Food sprites, collectibles, and separately created PlatformerKey sprites are preserved and do not count.
 
-## Collision regression proof
+## Executable regression proofs
 
 The package's executable Arcade test uses 24-by-24 Player and Enemy images whose opaque art is surrounded on every side by transparent pixels. It drives three real Player/Enemy overlaps through Arcade's physics and public overlap event: a descending top contact must report a stomp, while side and rising underside contacts must not. The test fails unless all three callbacks occur exactly once with those classifications.
+
+The same running test creates a separate PlatformerKey sprite and a helper-owned three-key set. It proves the unrelated sprite survives setup and Player contact; the goal remains false after zero, one, and two collected helper keys; it becomes true after exactly the third; and both complete and partial key sets reset cleanly when a new set is created.
 
 ## Design boundary
 
