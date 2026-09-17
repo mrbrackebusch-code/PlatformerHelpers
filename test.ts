@@ -28,6 +28,19 @@ let paddedEnemyArt = image.create(24, 24)
 paddedEnemyArt.fillRect(4, 4, 16, 15, 4)
 let paddedEnemy = sprites.create(paddedEnemyArt, SpriteKind.Enemy)
 
+// Regression fixture: moving-platform support must also follow the opaque
+// pixels instead of the outer dimensions of the selected art.
+let paddedPlatformArt = image.create(24, 8)
+paddedPlatformArt.fillRect(4, 3, 16, 3, 7)
+let paddedMovingPlatform = platformerHelpers.createMovingPlatform(
+    paddedPlatformArt,
+    2,
+    6,
+    8,
+    6,
+    30
+)
+
 let movingHazard = platformerHelpers.createMovingHazard(
     image.create(16, 16),
     12,

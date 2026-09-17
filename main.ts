@@ -125,10 +125,6 @@ namespace platformerHelpers {
         return null
     }
 
-    function overlapsHorizontally(left: number, right: number, platform: Sprite): boolean {
-        return right > platform.left + 1 && left < platform.right - 1
-    }
-
     function collisionBounds(sprite: Sprite): CollisionBounds {
         const hitbox = game.calculateHitBox(sprite)
         return {
@@ -145,6 +141,11 @@ namespace platformerHelpers {
         other: CollisionBounds
     ): boolean {
         return right > other.left + 1 && left < other.right - 1
+    }
+
+    function alignPlayerOnPlatform(player: Sprite, platformBounds: CollisionBounds): void {
+        const playerBounds = collisionBounds(player)
+        player.bottom += platformBounds.top - playerBounds.bottom
     }
 
     function isStompContact(player: Sprite, enemy: Sprite): boolean {
@@ -283,38 +284,50 @@ namespace platformerHelpers {
             if (isDestroyed(player)) continue
 
             const existing = riderFor(player)
-            if (existing
-                && !isDestroyed(existing.mover.sprite)
-                && player.vy >= 0
-                && overlapsHorizontally(player.left, player.right, existing.mover.sprite)) {
-                moveSpriteThroughTilePhysics(player, existing.mover.lastDx, existing.mover.lastDy)
-                player.bottom = existing.mover.sprite.top
-                if (player.vy > 0) player.vy = 0
-                setBottomContact(player, existing.mover.sprite)
-                retained.push(existing)
-                continue
+            if (existing && !isDestroyed(existing.mover.sprite)) {
+                const playerBounds = collisionBounds(player)
+                const platformBounds = collisionBounds(existing.mover.sprite)
+                if (player.vy >= 0
+                    && boundsOverlapHorizontally(
+                        playerBounds.left,
+                        playerBounds.right,
+                        platformBounds
+                    )) {
+                    moveSpriteThroughTilePhysics(player, existing.mover.lastDx, existing.mover.lastDy)
+                    alignPlayerOnPlatform(player, platformBounds)
+                    if (player.vy > 0) player.vy = 0
+                    setBottomContact(player, existing.mover.sprite)
+                    retained.push(existing)
+                    continue
+                }
             }
 
             const snapshot = snapshotFor(player)
             if (!snapshot || player.vy < 0) continue
 
+            const playerBounds = collisionBounds(player)
             let landing: PathMover = null
             let landingTop = 0x7fffffff
             for (const mover of platformMovers) {
                 if (isDestroyed(mover.sprite)) continue
-                const oldTop = mover.sprite.top - mover.lastDy
+                const platformBounds = collisionBounds(mover.sprite)
+                const oldTop = platformBounds.top - mover.lastDy
                 if (snapshot.bottom <= oldTop + 1
-                    && player.bottom >= mover.sprite.top
-                    && overlapsHorizontally(player.left, player.right, mover.sprite)
-                    && mover.sprite.top < landingTop) {
+                    && playerBounds.bottom >= platformBounds.top
+                    && boundsOverlapHorizontally(
+                        playerBounds.left,
+                        playerBounds.right,
+                        platformBounds
+                    )
+                    && platformBounds.top < landingTop) {
                     landing = mover
-                    landingTop = mover.sprite.top
+                    landingTop = platformBounds.top
                 }
             }
 
             if (landing) {
                 moveSpriteThroughTilePhysics(player, landing.lastDx, 0)
-                player.bottom = landing.sprite.top
+                alignPlayerOnPlatform(player, collisionBounds(landing.sprite))
                 if (player.vy > 0) player.vy = 0
                 setBottomContact(player, landing.sprite)
                 retained.push({ player: player, mover: landing })

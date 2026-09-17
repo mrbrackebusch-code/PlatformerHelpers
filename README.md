@@ -16,7 +16,7 @@ The extension handles movement plumbing while leaving game rules with the studen
 3. Choose **Platformer Helpers**.
 4. Set the tilemap before creating helpers that use tile coordinates.
 
-The moving-platform helper is intentionally a flat, top-ridable platform. Player sprites can stand on and ride it. Side and underside platform collisions are not added. Moving hazards remain ordinary sprites so the game's normal overlap events can decide what touching one means.
+The moving-platform helper is intentionally a flat, top-ridable platform. Player sprites can stand on and ride it. Landing and riding use Arcade's opaque-pixel collision bounds, so transparent padding around the platform or Player art does not create invisible support. Side and underside platform collisions are not added. Moving hazards remain ordinary sprites so the game's normal overlap events can decide what touching one means.
 
 ## Blocks
 
