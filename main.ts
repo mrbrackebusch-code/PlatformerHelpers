@@ -2,6 +2,7 @@ namespace SpriteKind {
     /**
      * The sprite kind used by hazards made with create moving hazard.
      */
+    //% isKind
     export const MovingHazard = SpriteKind.create()
 
     /**

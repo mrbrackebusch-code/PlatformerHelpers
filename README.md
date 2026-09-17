@@ -48,6 +48,13 @@ The block contains the direction and motion checks. Students do not need to comp
 
 Creates a sprite of kind MovingHazard and moves it back and forth between two tile coordinates. It does not carry the player or prescribe damage behavior.
 
+**MovingHazard** appears in Arcade's sprite-kind dropdown. To make contact lethal, use the normal sprite-overlap event:
+
+```text
+on Player overlaps MovingHazard
+    game over LOSE
+```
+
 ### Three-key goal
 
 **Create 3 keys** uses one student-selected picture for all three keys and places them at three tile coordinates. Touching a key with a Player automatically collects it. Running the setup block again removes the old key set and starts the count over at zero.
