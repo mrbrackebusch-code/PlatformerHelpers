@@ -3,6 +3,11 @@ namespace SpriteKind {
      * The sprite kind used by hazards made with create moving hazard.
      */
     export const MovingHazard = SpriteKind.create()
+
+    /**
+     * The sprite kind used by keys made with create 3 keys.
+     */
+    export const PlatformerKey = SpriteKind.create()
 }
 
 /**
@@ -11,7 +16,7 @@ namespace SpriteKind {
 //% block="Platformer Helpers"
 //% color="#7c3aed"
 //% icon="\uf1b0"
-//% groups='["Platforms", "Enemies", "Hazards"]'
+//% groups='["Platforms", "Enemies", "Hazards", "Keys"]'
 namespace platformerHelpers {
     const ENEMY_GRAVITY = 500
     const MOVING_PLATFORM_KIND = SpriteKind.create()
@@ -71,6 +76,8 @@ namespace platformerHelpers {
     let playerSnapshots: PlayerSnapshot[] = []
     let stompContacts: StompContact[] = []
     let stompHandlers: ((player: Sprite, enemy: Sprite) => void)[] = []
+    let keysCollected = 0
+    let keysRequired = 0
     let runtimeScene: scene.Scene = null
     let lastUpdateMillis = 0
 
@@ -88,7 +95,15 @@ namespace platformerHelpers {
         riders = []
         playerSnapshots = []
         stompContacts = []
+        keysCollected = 0
+        keysRequired = 0
         lastUpdateMillis = control.millis()
+
+        sprites.onOverlap(SpriteKind.Player, SpriteKind.PlatformerKey, function (player, key) {
+            if (isDestroyed(key)) return
+            key.destroy()
+            keysCollected += 1
+        })
 
         current.eventContext.registerFrameHandler(scene.PHYSICS_PRIORITY - 1, function () {
             capturePlayerPositions()
@@ -576,6 +591,72 @@ namespace platformerHelpers {
             SpriteKind.MovingHazard,
             false
         )
+    }
+
+    function createKey(art: Image, column: number, row: number): Sprite {
+        const key = sprites.create(art || img`
+            . . 5 5 5 . . .
+            . 5 . . . 5 . .
+            . 5 . . . 5 . .
+            . . 5 5 5 . . .
+            . . . 5 . . . .
+            . . . 5 5 5 . .
+            . . . 5 . 5 . .
+            . . . 5 5 5 . .
+        `, SpriteKind.PlatformerKey)
+        const location = tiles.getTileLocation(Math.round(column), Math.round(row))
+        if (location) tiles.placeOnTile(key, location)
+        return key
+    }
+
+    /**
+     * Create three automatically collected keys at three tile locations.
+     * Creating a new set removes any keys from the previous set and resets the count.
+     * @param art the key picture
+     * @param firstColumn first key tile column, eg: 4
+     * @param firstRow first key tile row, eg: 7
+     * @param secondColumn second key tile column, eg: 8
+     * @param secondRow second key tile row, eg: 5
+     * @param thirdColumn third key tile column, eg: 12
+     * @param thirdRow third key tile row, eg: 7
+     */
+    //% blockId=platformer_helpers_create_three_keys
+    //% block="create 3 keys $art=screen_image_picker at col $firstColumn row $firstRow, col $secondColumn row $secondRow, and col $thirdColumn row $thirdRow"
+    //% duplicateShadowOnDrag
+    //% group="Keys"
+    //% weight=100
+    export function createThreeKeys(
+        art: Image,
+        firstColumn: number,
+        firstRow: number,
+        secondColumn: number,
+        secondRow: number,
+        thirdColumn: number,
+        thirdRow: number
+    ): void {
+        ensureRuntime()
+
+        for (const key of sprites.allOfKind(SpriteKind.PlatformerKey)) {
+            key.destroy()
+        }
+
+        keysCollected = 0
+        keysRequired = 3
+        createKey(art, firstColumn, firstRow)
+        createKey(art, secondColumn, secondRow)
+        createKey(art, thirdColumn, thirdRow)
+    }
+
+    /**
+     * Report whether all three keys from create 3 keys have been collected.
+     */
+    //% blockId=platformer_helpers_all_three_keys_collected
+    //% block="all 3 keys collected"
+    //% group="Keys"
+    //% weight=95
+    export function allThreeKeysCollected(): boolean {
+        ensureRuntime()
+        return keysRequired === 3 && keysCollected >= keysRequired
     }
 }
 

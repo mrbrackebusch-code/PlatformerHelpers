@@ -50,3 +50,19 @@ let movingHazard = platformerHelpers.createMovingHazard(
     35
 )
 
+platformerHelpers.createThreeKeys(
+    image.create(8, 8),
+    3,
+    7,
+    7,
+    5,
+    11,
+    7
+)
+
+scene.onOverlapTile(SpriteKind.Player, image.create(16, 16), function (sprite, location) {
+    if (platformerHelpers.allThreeKeysCollected()) {
+        game.over(true)
+    }
+})
+

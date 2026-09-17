@@ -1,11 +1,13 @@
 # Platformer Helpers
 
-Four focused MakeCode Arcade blocks for student-built platformer games:
+Six focused MakeCode Arcade blocks for student-built platformer games:
 
 - create a moving platform from one tile coordinate to another;
 - create a walking enemy that turns at walls and ledges;
 - tell a stomp from a dangerous side or underside collision;
-- create a moving hazard from one tile coordinate to another.
+- create a moving hazard from one tile coordinate to another;
+- create three automatically collected keys at three tile coordinates; and
+- check whether all three keys have been collected.
 
 The extension handles movement plumbing while leaving game rules with the student. It does not replace Arcade's physics engine, change global gravity, or decide what stomping and touching hazards should do.
 
@@ -46,9 +48,23 @@ The block contains the direction and motion checks. Students do not need to comp
 
 Creates a sprite of kind MovingHazard and moves it back and forth between two tile coordinates. It does not carry the player or prescribe damage behavior.
 
+### Three-key goal
+
+**Create 3 keys** uses one student-selected picture for all three keys and places them at three tile coordinates. Touching a key with a Player automatically collects it. Running the setup block again removes the old key set and starts the count over at zero.
+
+Place **all 3 keys collected** inside an `if` in the normal overlap event for the level's win-area tile. The student still decides what happens when the condition is true.
+
+```text
+on Player overlaps win-area tile
+    if all 3 keys collected
+        game over WIN
+```
+
+The key count is private to this helper and only keys created by **create 3 keys** can satisfy it. Other Food sprites or collectibles do not count.
+
 ## Design boundary
 
-This package deliberately does not include keys, doors, switches, checkpoints, puzzle systems, falling platforms, disappearing platforms, or other game-specific rules. Those remain student-authored game logic.
+This package deliberately does not include doors, switches, checkpoints, broader inventory systems, falling platforms, disappearing platforms, or other game-specific rules. Those remain student-authored game logic.
 
 ## License
 
