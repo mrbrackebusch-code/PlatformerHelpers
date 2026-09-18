@@ -20,6 +20,12 @@ The extension handles movement plumbing while leaving game rules with the studen
 
 The moving-platform helper is intentionally a flat, top-ridable platform. Player sprites can stand on and ride it. Landing and riding use Arcade's opaque-pixel collision bounds, so transparent padding around the platform or Player art does not create invisible support. Side and underside platform collisions are not added. Moving hazards remain ordinary sprites so the game's normal overlap events can decide what touching one means.
 
+## Classroom migration category
+
+The blue **Platformer Helpers 2** toolbox category contains one-for-one copies of every visible block in the original purple **Platformer Helpers** category. The block names, inputs, output types, default variable names, sprite kinds, and runtime behavior are the same; only the toolbox category and block identities are new.
+
+To replace a block without risking its selected art, first drag the old block out of its event or stack but leave it in the workspace. Add the matching block from **Platformer Helpers 2**, select the same art and copy the values, connect the new block, and only then remove or ignore the old block.
+
 ## Blocks
 
 ### Moving platform

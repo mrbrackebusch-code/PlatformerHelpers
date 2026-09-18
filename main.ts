@@ -690,3 +690,120 @@ namespace platformerHelpers {
     }
 }
 
+/**
+ * Migration copies of Platformer Helpers blocks. The separate category lets an
+ * old art-bearing block remain in the workspace until its replacement is ready.
+ */
+//% block="Platformer Helpers 2"
+//% color="#2563eb"
+//% icon="\uf1b0"
+//% groups='["Platforms", "Enemies", "Hazards", "Keys"]'
+namespace platformerHelpers2 {
+    //% blockId=platformer_helpers_create_moving_platform_2
+    //% block="create moving platform $art=screen_image_picker from col $startColumn row $startRow to col $endColumn row $endRow at speed $speed"
+    //% blockSetVariable="movingPlatform"
+    //% duplicateShadowOnDrag
+    //% group="Platforms"
+    //% weight=100
+    //% speed.min=0 speed.max=200
+    export function createMovingPlatform(
+        art: Image,
+        startColumn: number,
+        startRow: number,
+        endColumn: number,
+        endRow: number,
+        speed: number
+    ): Sprite {
+        return platformerHelpers.createMovingPlatform(
+            art,
+            startColumn,
+            startRow,
+            endColumn,
+            endRow,
+            speed
+        )
+    }
+
+    //% blockId=platformer_helpers_create_walking_enemy_2
+    //% block="create walking enemy $art=screen_image_picker at col $column row $row with speed $speed"
+    //% blockSetVariable="walkingEnemy"
+    //% duplicateShadowOnDrag
+    //% group="Enemies"
+    //% weight=100
+    //% speed.min=0 speed.max=150
+    export function createWalkingEnemy(
+        art: Image,
+        column: number,
+        row: number,
+        speed: number
+    ): Sprite {
+        return platformerHelpers.createWalkingEnemy(art, column, row, speed)
+    }
+
+    //% blockId=platformer_helpers_player_stomps_enemy_2
+    //% block="Player $player=variables_get(sprite) stomps Enemy $enemy=variables_get(otherSprite)"
+    //% group="Enemies"
+    //% weight=95
+    export function playerStompsEnemy(player: Sprite, enemy: Sprite): boolean {
+        return platformerHelpers.playerStompsEnemy(player, enemy)
+    }
+
+    //% blockId=platformer_helpers_create_moving_hazard_2
+    //% block="create moving hazard $art=screen_image_picker from col $startColumn row $startRow to col $endColumn row $endRow at speed $speed"
+    //% blockSetVariable="movingHazard"
+    //% duplicateShadowOnDrag
+    //% group="Hazards"
+    //% weight=100
+    //% speed.min=0 speed.max=200
+    export function createMovingHazard(
+        art: Image,
+        startColumn: number,
+        startRow: number,
+        endColumn: number,
+        endRow: number,
+        speed: number
+    ): Sprite {
+        return platformerHelpers.createMovingHazard(
+            art,
+            startColumn,
+            startRow,
+            endColumn,
+            endRow,
+            speed
+        )
+    }
+
+    //% blockId=platformer_helpers_create_three_keys_2
+    //% block="create 3 keys $art=screen_image_picker at col $firstColumn row $firstRow, col $secondColumn row $secondRow, and col $thirdColumn row $thirdRow"
+    //% duplicateShadowOnDrag
+    //% group="Keys"
+    //% weight=100
+    export function createThreeKeys(
+        art: Image,
+        firstColumn: number,
+        firstRow: number,
+        secondColumn: number,
+        secondRow: number,
+        thirdColumn: number,
+        thirdRow: number
+    ): void {
+        platformerHelpers.createThreeKeys(
+            art,
+            firstColumn,
+            firstRow,
+            secondColumn,
+            secondRow,
+            thirdColumn,
+            thirdRow
+        )
+    }
+
+    //% blockId=platformer_helpers_all_three_keys_collected_2
+    //% block="all 3 keys collected"
+    //% group="Keys"
+    //% weight=95
+    export function allThreeKeysCollected(): boolean {
+        return platformerHelpers.allThreeKeysCollected()
+    }
+}
+
