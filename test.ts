@@ -4,11 +4,6 @@ function compileCoverage(): void {
     platformerHelpers.createMovingHazard(image.create(16, 16), 12, 8, 12, 4, 35)
     platformerHelpers.createThreeKeys(image.create(8, 8), 3, 7, 7, 5, 11, 7)
     platformerHelpers.allThreeKeysCollected()
-    platformerHelpers2.createMovingPlatform(image.create(16, 4), 2, 8, 8, 8, 30)
-    platformerHelpers2.createWalkingEnemy(image.create(16, 16), 10, 8, 25)
-    platformerHelpers2.createMovingHazard(image.create(16, 16), 12, 8, 12, 4, 35)
-    platformerHelpers2.createThreeKeys(image.create(8, 8), 3, 7, 7, 5, 11, 7)
-    platformerHelpers2.allThreeKeysCollected()
 }
 
 let collisionScenario = 0
@@ -18,25 +13,18 @@ let undersideOverlapCount = 0
 let stompClassified = false
 let sideClassified = true
 let undersideClassified = true
-let stompClassified2 = false
-let sideClassified2 = true
-let undersideClassified2 = true
 
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (player, enemy) {
     const classifiedAsStomp = platformerHelpers.playerStompsEnemy(player, enemy)
-    const classifiedAsStomp2 = platformerHelpers2.playerStompsEnemy(player, enemy)
     if (collisionScenario === 1) {
         stompOverlapCount += 1
         stompClassified = classifiedAsStomp
-        stompClassified2 = classifiedAsStomp2
     } else if (collisionScenario === 2) {
         sideOverlapCount += 1
         sideClassified = classifiedAsStomp
-        sideClassified2 = classifiedAsStomp2
     } else if (collisionScenario === 3) {
         undersideOverlapCount += 1
         undersideClassified = classifiedAsStomp
-        undersideClassified2 = classifiedAsStomp2
     }
 
     // Keep each scenario to one overlap callback so the result is exact.
@@ -57,7 +45,7 @@ function paddedEnemyArt(): Image {
 }
 
 function spawnStationaryEnemy(x: number, y: number): Sprite {
-    const enemy = platformerHelpers2.createWalkingEnemy(paddedEnemyArt(), 4, 4, 0)
+    const enemy = platformerHelpers.createWalkingEnemy(paddedEnemyArt(), 4, 4, 0)
     enemy.setPosition(x, y)
     enemy.ay = 0
     enemy.vx = 0
@@ -110,24 +98,18 @@ pause(500)
 
 const collisionProofPassed = stompOverlapCount === 1
     && stompClassified
-    && stompClassified2
     && sideOverlapCount === 1
     && !sideClassified
-    && !sideClassified2
     && undersideOverlapCount === 1
     && !undersideClassified
-    && !undersideClassified2
 
 console.log("PLATFORMER_HELPERS_COLLISION result=" + (collisionProofPassed ? "PASS" : "FAIL")
     + " stompOverlap=" + stompOverlapCount
     + " stompClassified=" + stompClassified
-    + " stompClassified2=" + stompClassified2
     + " sideOverlap=" + sideOverlapCount
     + " sideClassified=" + sideClassified
-    + " sideClassified2=" + sideClassified2
     + " undersideOverlap=" + undersideOverlapCount
-    + " undersideClassified=" + undersideClassified
-    + " undersideClassified2=" + undersideClassified2)
+    + " undersideClassified=" + undersideClassified)
 
 proofPlayer.destroy()
 proofEnemy.destroy()
@@ -159,15 +141,6 @@ function collectKeyAt(player: Sprite, column: number, row: number): void {
     pause(120)
 }
 
-let keyCategoryParity = true
-
-function allThreeKeysCollectedFromBothCategories(): boolean {
-    const originalResult = platformerHelpers.allThreeKeysCollected()
-    const category2Result = platformerHelpers2.allThreeKeysCollected()
-    if (originalResult !== category2Result) keyCategoryParity = false
-    return category2Result
-}
-
 // A public kind must not make arbitrary PlatformerKey sprites part of the
 // helper's private three-key goal. This sprite represents a student's separate
 // key-like object and must survive setup and contact.
@@ -176,7 +149,7 @@ control.runInParallel(function () {
     const unrelatedKey = sprites.create(keyArt(), SpriteKind.PlatformerKey)
     unrelatedKey.setPosition(112, 112)
 
-    platformerHelpers2.createThreeKeys(keyArt(), 1, 1, 3, 1, 5, 1)
+    platformerHelpers.createThreeKeys(keyArt(), 1, 1, 3, 1, 5, 1)
     pause(50)
 
     const unrelatedSurvivedSetup = kindContains(unrelatedKey)
@@ -184,37 +157,37 @@ control.runInParallel(function () {
         && helperKeyIsAt(1, 1, unrelatedKey)
         && helperKeyIsAt(3, 1, unrelatedKey)
         && helperKeyIsAt(5, 1, unrelatedKey)
-    const falseBeforeCollection = !allThreeKeysCollectedFromBothCategories()
+    const falseBeforeCollection = !platformerHelpers.allThreeKeysCollected()
 
     const keyPlayer = sprites.create(paddedPlayerArt(), SpriteKind.Player)
     keyPlayer.setPosition(unrelatedKey.x, unrelatedKey.y)
     pause(120)
     const unrelatedIgnored = kindContains(unrelatedKey)
-        && !allThreeKeysCollectedFromBothCategories()
+        && !platformerHelpers.allThreeKeysCollected()
 
     collectKeyAt(keyPlayer, 1, 1)
-    const falseAfterFirst = !allThreeKeysCollectedFromBothCategories()
+    const falseAfterFirst = !platformerHelpers.allThreeKeysCollected()
         && sprites.allOfKind(SpriteKind.PlatformerKey).length === 3
 
     collectKeyAt(keyPlayer, 3, 1)
-    const falseAfterSecond = !allThreeKeysCollectedFromBothCategories()
+    const falseAfterSecond = !platformerHelpers.allThreeKeysCollected()
         && sprites.allOfKind(SpriteKind.PlatformerKey).length === 2
 
     collectKeyAt(keyPlayer, 5, 1)
-    const trueAfterThird = allThreeKeysCollectedFromBothCategories()
+    const trueAfterThird = platformerHelpers.allThreeKeysCollected()
         && sprites.allOfKind(SpriteKind.PlatformerKey).length === 1
 
     // Starting a new set must reset progress while preserving unrelated sprites.
-    platformerHelpers2.createThreeKeys(keyArt(), 1, 2, 3, 2, 5, 2)
+    platformerHelpers.createThreeKeys(keyArt(), 1, 2, 3, 2, 5, 2)
     pause(50)
-    const completedSetReset = !allThreeKeysCollectedFromBothCategories()
+    const completedSetReset = !platformerHelpers.allThreeKeysCollected()
         && kindContains(unrelatedKey)
         && sprites.allOfKind(SpriteKind.PlatformerKey).length === 4
 
     collectKeyAt(keyPlayer, 1, 2)
-    platformerHelpers2.createThreeKeys(keyArt(), 1, 3, 3, 3, 5, 3)
+    platformerHelpers.createThreeKeys(keyArt(), 1, 3, 3, 3, 5, 3)
     pause(50)
-    const partialSetReplaced = !allThreeKeysCollectedFromBothCategories()
+    const partialSetReplaced = !platformerHelpers.allThreeKeysCollected()
         && kindContains(unrelatedKey)
         && sprites.allOfKind(SpriteKind.PlatformerKey).length === 4
         && helperKeyIsAt(1, 3, unrelatedKey)
@@ -230,7 +203,6 @@ control.runInParallel(function () {
         && trueAfterThird
         && completedSetReset
         && partialSetReplaced
-        && keyCategoryParity
 
     console.log("PLATFORMER_HELPERS_KEYS result=" + (keyProofPassed ? "PASS" : "FAIL")
         + " unrelatedSurvivedSetup=" + unrelatedSurvivedSetup
@@ -241,7 +213,6 @@ control.runInParallel(function () {
         + " falseAfterSecond=" + falseAfterSecond
         + " trueAfterThird=" + trueAfterThird
         + " completedSetReset=" + completedSetReset
-        + " partialSetReplaced=" + partialSetReplaced
-        + " categoryParity=" + keyCategoryParity)
+        + " partialSetReplaced=" + partialSetReplaced)
 })
 
